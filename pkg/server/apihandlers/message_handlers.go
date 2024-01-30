@@ -88,15 +88,6 @@ func DeleteMessageHandler(appState *models.AppState) http.HandlerFunc {
 
 		log.Debugf("DeleteMessageHandler - SessionId %s - MessageUUID %s", sessionID, messageUUID)
 
-		// No need to receive anything in the request body, comment/remove this
-		// message := models.Message{}
-		// message.UUID = messageUUID
-		// err := json.NewDecoder(r.Body).Decode(&message)
-		// if err != nil {
-		// 	http.Error(w, err.Error(), http.StatusBadRequest)
-		// 	return
-		// }
-
 		// Call a new function called MarkAsDeleted instead of UpdateMessages. This function needs to be implemented.
 		err := appState.MemoryStore.MarkAsDeleted(r.Context(), sessionID, messageUUID)
 		if err != nil {
@@ -107,22 +98,6 @@ func DeleteMessageHandler(appState *models.AppState) http.HandlerFunc {
 				handlertools.RenderError(w, err, http.StatusInternalServerError)
 				return
 			}
-		}
-
-		// You may remove this if you don't want to return the deleted message to the client
-		messages, err := appState.MemoryStore.GetMessagesByUUID(r.Context(), sessionID, []uuid.UUID{messageUUID})
-		if err != nil {
-			handlertools.RenderError(w, fmt.Errorf("not found"), http.StatusNotFound)
-			return
-		}
-
-		if len(messages) > 0 {
-			if err := handlertools.EncodeJSON(w, messages[0]); err != nil {
-				handlertools.RenderError(w, err, http.StatusInternalServerError)
-				return
-			}
-		} else {
-			handlertools.RenderError(w, fmt.Errorf("No message found with the specified ID"), http.StatusNotFound)
 		}
 	}
 }
