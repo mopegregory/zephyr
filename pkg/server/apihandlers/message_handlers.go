@@ -116,9 +116,13 @@ func DeleteMessageHandler(appState *models.AppState) http.HandlerFunc {
 			return
 		}
 
-		if err := handlertools.EncodeJSON(w, messages[0]); err != nil {
-			handlertools.RenderError(w, err, http.StatusInternalServerError)
-			return
+		if len(messages) > 0 {
+			if err := handlertools.EncodeJSON(w, messages[0]); err != nil {
+				handlertools.RenderError(w, err, http.StatusInternalServerError)
+				return
+			}
+		} else {
+			handlertools.RenderError(w, fmt.Errorf("No message found with the specified ID"), http.StatusNotFound)
 		}
 	}
 }
