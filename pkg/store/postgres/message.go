@@ -445,7 +445,7 @@ func (dao *MessageDAO) MarkAsDeleted(ctx context.Context, messageUUID uuid.UUID)
 
 	// query would be building an UPDATE SQL statement which sets deleted_at field to the current date time
 	query := dao.db.NewUpdate().
-		Model(&MessageVectorStoreSchema{}). // switch to MessageVectorStore
+		Model(&MessageStoreSchema{}). // switch to MessageVectorStore
 		Set("deleted_at = current_timestamp").
 		Where("uuid = ?", messageUUID)
 
