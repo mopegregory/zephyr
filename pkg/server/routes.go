@@ -181,6 +181,7 @@ func setupSessionRoutes(router chi.Router, appState *models.AppState) {
 			r.Route("/{messageId}", func(r chi.Router) {
 				r.Get("/", apihandlers.GetMessageHandler(appState))
 				r.Patch("/", apihandlers.UpdateMessageMetadataHandler(appState))
+				r.Delete("/", apihandlers.DeleteMessageHandler(appState))
 			})
 		})
 

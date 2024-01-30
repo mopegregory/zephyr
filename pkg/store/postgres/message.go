@@ -436,6 +436,32 @@ func (dao *MessageDAO) UpdateMany(ctx context.Context,
 	return nil
 }
 
+func (dao *MessageDAO) MarkAsDeleted(ctx context.Context, messageUUID uuid.UUID) error {
+	tx, err := dao.db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	defer rollbackOnError(tx)
+
+	// query would be building an UPDATE SQL statement which sets deleted_at field to the current date time
+	query := dao.db.NewUpdate().
+		Model(&MessageVectorStoreSchema{}). // switch to MessageVectorStore
+		Set("deleted_at = current_timestamp").
+		Where("uuid = ?", messageUUID)
+
+	_, err = query.Exec(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to delete message: %w", err)
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	return nil
+}
+
 // updateMetadata updates the metadata for a message by its UUID. Metadata is updated via a merge.
 // An advisory lock is acquired on the message UUID to prevent concurrent updates to the metadata.
 func (dao *MessageDAO) updateMetadata(

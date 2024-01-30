@@ -308,6 +308,15 @@ func (pms *PostgresMemoryStore) UpdateMessages(
 	return messageDAO.UpdateMany(ctx, messages, includeContent, isPrivileged)
 }
 
+func (pms *PostgresMemoryStore) MarkAsDeleted(ctx context.Context, sessionID string, messageUUID uuid.UUID) error {
+	messageDAO, err := NewMessageDAO(pms.Client, pms.appState, sessionID)
+	if err != nil {
+		return fmt.Errorf("failed to create messageDAO: %w", err)
+	}
+
+	return messageDAO.MarkAsDeleted(ctx, messageUUID)
+}
+
 func (pms *PostgresMemoryStore) SearchMemory(
 	ctx context.Context,
 	sessionID string,

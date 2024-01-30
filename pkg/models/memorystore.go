@@ -84,6 +84,7 @@ type MessageStorer interface {
 	// GetMessageEmbeddings retrieves a collection of TextData for a given sessionID.
 	GetMessageEmbeddings(ctx context.Context,
 		sessionID string) ([]TextData, error)
+	MarkAsDeleted(ctx context.Context, sessionID string, messageUUID uuid.UUID) error
 }
 
 type MemoryStorer interface {
