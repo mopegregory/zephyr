@@ -449,9 +449,16 @@ func (dao *MessageDAO) MarkAsDeleted(ctx context.Context, messageUUID uuid.UUID)
 		Set("deleted_at = current_timestamp").
 		Where("uuid = ?", messageUUID)
 
-	_, err = query.Exec(ctx)
+	res, err := query.Exec(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to delete message: %w", err)
+	}
+
+	// Check how many rows were affected by the DELETE operation
+	if count, err := res.RowsAffected(); err != nil {
+		return fmt.Errorf("failed to get affected row count: %w", err)
+	} else if count == 0 {
+		return models.ErrNotFound
 	}
 
 	err = tx.Commit()
